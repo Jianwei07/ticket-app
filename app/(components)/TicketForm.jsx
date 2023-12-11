@@ -3,21 +3,35 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const handleChange = (e) => {
-  const value = e.target.value;
-  const name = e.target.name;
-
-  setFormData((prevState) => ({
-    ...prevState,
-    [name]: value,
-  }));
-};
-
-const handleSubmit = () => {
-  console.log("Submitted");
-};
-
 const TicketForm = () => {
+  const router = useRouter();
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    const name = e.target.name;
+
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch("/api/Tickets", {
+      method: "POST",
+      body: JSON.stringify({ formData }),
+      "content-type": "application/json",
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to create Ticket.");
+    }
+
+    router.refresh();
+    router.push("/");
+  };
+
   const startingTicketData = {
     title: "",
     description: "",
@@ -62,9 +76,9 @@ const TicketForm = () => {
           value={formData.category}
           onChange={handleChange}
         >
-          <option value="Hardware Problem">Problem 1</option>
-          <option value="2 Problem">Problem 2</option>
-          <option value="3 Problem">Problem 3</option>
+          <option value="To-Do">To-Do</option>
+          <option value="Pending">In Progress</option>
+          <option value="Completed">Completed</option>
         </select>
 
         <label>Priority</label>
@@ -129,7 +143,7 @@ const TicketForm = () => {
         <select name="status " value={formData.status} onChange={handleChange}>
           <options value="not started">Not Started</options>
           <options value="in progress">In Progress</options>
-          <options value="done">Completed</options>
+          <options value="done">Done</options>
         </select>
         <input type="submit" className="btn max-w-xs" value="Create Ticket" />
       </form>
