@@ -7,27 +7,32 @@ const getTicketById = async (id) => {
     });
 
     if (!res.ok) {
-      throw new Error("Failed to get ticket.");
+      throw new Error("Failed to fetch ticket");
     }
+
     return res.json();
   } catch (error) {
     console.log(error);
   }
 };
 
-let updateTicketData = {};
-const ticketPage = async ({ params }) => {
+const TicketPage = async ({ params }) => {
   const EDITMODE = params.id === "new" ? false : true;
+  let updateTicketData = {};
 
   if (EDITMODE) {
-    updateTicketData = await getTicketById(params.id);
-    updateTicketData = updateTicketData.foundTicket;
+    const res = await getTicketById(params.id);
+    if (res && res.foundTicket) {
+      updateTicketData = updateTicketData.foundTicket;
+    }
   } else {
+    console.log();
     updateTicketData = {
       _id: "new",
     };
   }
+
   return <TicketForm ticket={updateTicketData} />;
 };
 
-export default ticketPage;
+export default TicketPage;
